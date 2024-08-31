@@ -9,7 +9,7 @@ jobs:
         uses: actions/setup-dotnet@main
         id: setup
         with:
-          dotnet-version: 6.0.x
+          dotnet-version: latest
 
       - name: Build
         id: build
@@ -29,3 +29,4 @@ jobs:
         with:
           name: artifact
           path: .\artifact-upload
+          retention-days: 60

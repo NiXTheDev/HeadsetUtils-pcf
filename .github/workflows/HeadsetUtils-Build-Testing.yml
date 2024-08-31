@@ -9,7 +9,7 @@ jobs:
         uses: actions/setup-dotnet@main
         id: setup
         with:
-          dotnet-version: 8.x
+          dotnet-version: latest
 
       - name: Build
         id: build
