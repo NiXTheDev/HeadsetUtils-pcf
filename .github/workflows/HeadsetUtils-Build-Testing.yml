@@ -1,5 +1,11 @@
 name: 'Testing workflow for testing build options'
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      dotnet-version:
+        required: true
+        type: string
+        description: '.NET version to use for build'
 jobs:
   Build-Debug:
     runs-on: windows-latest
