@@ -2,10 +2,11 @@ name: 'Testing workflow for testing build options'
 on:
   workflow_dispatch:
     inputs:
-      dotnet-version:
+      dotnetver:
         required: true
         type: string
         description: '.NET version to use for build'
+        default: '6.0.x'
 jobs:
   Build-Debug:
     runs-on: windows-latest
@@ -15,7 +16,7 @@ jobs:
         uses: actions/setup-dotnet@main
         id: setup
         with:
-          dotnet-version: 8.x
+          dotnet-version: ${{ github.event.inputs.dotnetver }}
 
       - name: Build
         id: build
