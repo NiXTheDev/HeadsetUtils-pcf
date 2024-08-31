@@ -22,6 +22,10 @@ jobs:
         id: build
         run: dotnet build ./HeadsetUtils --configuration Release
 
+      - name: Tree
+        id: list-files
+        run: ls -r
+
       - name: Move needed files
         id: collect
         run: |
