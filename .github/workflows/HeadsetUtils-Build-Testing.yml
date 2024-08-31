@@ -13,7 +13,7 @@ jobs:
 
       - name: Build
         id: build
-        run: dotnet build ./HeadsetUtils --configuration Release
+        run: dotnet build ./HeadsetUtils --configuration Debug
 
       - name: Tree
         id: list-files
