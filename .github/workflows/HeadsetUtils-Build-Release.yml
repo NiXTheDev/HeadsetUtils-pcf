@@ -1,0 +1,69 @@
+name: 'Build HeadsetUtils[Release]'
+on:
+  workflow_dispatch:
+    inputs:
+      reltag:
+        required: true
+        type: string
+        description: 'Release tag(version) to be used for the release'
+      draft:
+        required: false
+        type: boolean
+        default: true
+        description: 'Make it a draft release(unpublished release)?'
+      pre-release:
+        required: false
+        type: boolean
+        default: false
+        description: 'Make it a pre-release?'
+      gen-rel-notes:
+        required: false
+        type: boolean
+        default: false
+        description: 'Generate release notes automatically?'
+      latest:
+        required: false
+        type: boolean
+        default: false
+        description: 'Make it the latest release?'
+jobs:
+  Build-Release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@main
+      - name: Setup .NET
+        uses: actions/setup-dotnet@main
+        id: setup
+        with:
+          dotnet-version: 8.x
+
+      - name: Build
+        id: build
+        run: dotnet build ./HeadsetUtils --configuration Release
+
+      - name: Collect and write required files
+        id: collect-write
+        run: |
+          mkdir ./artifact-upload
+          mv .\HeadsetUtils\bin\Release\net6.0-windows\* .\artifact-upload
+          mv .\HeadsetUtils\obj\Release\net6.0-windows\refint\HeadsetUtils.dll .\artifact-upload\ref\
+          echo '<?xml version="1.0"\nencoding="utf-8" ?>\n<configuration>\n\t<appSettings>\n\t\t<add key="MonitoringIntervalMs" value="1000"/>\n\t\t<add key="HeadsetName" value="Headset name here"/>\n\t\t<add key="SpeakersName" value="Speakers name here"/>\n\t\t<add key="Autorun" value="true"/>\n\t\t</appSettings>\n</configuration>' > .\artifact-upload\App.config
+          cp .\artifact-upload\App.config .\artifact-upload\HeadsetUtils.dll.config
+          Compress-Archive -Path .\artifact-upload -DestinationPath .\HeadsetUtils.zip -compressionlevel NoCompression
+
+      - name: 'Upload Artifact'
+        id: upload
+        uses: actions/upload-artifact@main
+        with:
+          name: HeadsetUtils-v${{ github.event.inputs.reltag }}
+          path: .\artifact-upload
+          retention-days: 30
+
+      - name: 'Create release'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.reltag }}
+          draft: ${{ github.event.inputs.draft }}
+          prerelease: ${{ github.event.inputs.pre-release }}
+          files: ./HeadsetUtils.zip
+          make_latest: ${{ github.event.inputs.latest }}
